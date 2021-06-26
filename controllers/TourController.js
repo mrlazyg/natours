@@ -1,5 +1,14 @@
 const tours = require('../dev-data/data/tours-simple.json');
 
+const checkID = (req, res, next, val) => {
+  if (parseInt(req.params.id) > tours.length) {
+    return res.status(404).send({
+      status: 'error',
+      message: 'Invalid Id',
+    });
+  }
+  next();
+};
 const getAllTours = (req, res) => {
   res.send({
     status: 'success',
@@ -14,7 +23,7 @@ const getTour = (req, res) => {
 };
 
 const createTour = (req, res) => {
-  res.send({
+  res.status(201).send({
     status: 'success',
     message: '<Tour created...>',
   });
@@ -34,4 +43,4 @@ const deleteTour = (req, res) => {
   });
 };
 
-module.exports = { getAllTours, getTour, createTour, updateTour, deleteTour };
+module.exports = { getAllTours, getTour, createTour, updateTour, deleteTour, checkID };
