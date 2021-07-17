@@ -1,3 +1,4 @@
+const { STATUS_CODES } = require('../config/constant');
 const Tour = require('../models/Tour');
 
 /* const checkID = (req, res, next, val) => {
@@ -14,7 +15,7 @@ const Tour = require('../models/Tour');
 const getAllTours = async (req, res) => {
   try {
     const allTours = await Tour.find();
-    res.send({
+    res.status(STATUS_CODES.OK).send({
       status: 'success',
       data: allTours,
     });
@@ -29,7 +30,7 @@ const getAllTours = async (req, res) => {
 const getTour = async (req, res) => {
   try {
     const tour = await Tour.findById(req.params.id);
-    res.send({
+    res.status(STATUS_CODES.OK).send({
       status: 'success',
       data: tour,
     });
@@ -44,7 +45,7 @@ const getTour = async (req, res) => {
 const createTour = async (req, res) => {
   try {
     const newTour = await Tour.create(req.body);
-    res.status(201).send({
+    res.status(STATUS_CODES.CREATED).send({
       status: 'success',
       data: newTour,
     });
@@ -56,18 +57,34 @@ const createTour = async (req, res) => {
   }
 };
 
-const updateTour = (req, res) => {
-  res.send({
-    status: 'success',
-    message: '<Tour updated...>',
-  });
+const updateTour = async (req, res) => {
+  try {
+    const updatedTour = await Tour.findOneAndUpdate(req.params.id, req.body, { new: true });
+    res.status(STATUS_CODES.OK).send({
+      status: 'success',
+      data: updatedTour,
+    });
+  } catch (error) {
+    res.status(400).send({
+      status: 'error',
+      message: error,
+    });
+  }
 };
 
-const deleteTour = (req, res) => {
-  res.send({
-    status: 'success',
-    message: '<Tour deleted...>',
-  });
+const deleteTour = async (req, res) => {
+  try {
+    const deletedTour = await Tour.findOneAndDelete(req.params.id);
+    res.status(STATUS_CODES.DELETED).send({
+      status: 'success',
+      data: deletedTour,
+    });
+  } catch (error) {
+    res.status(400).send({
+      status: 'error',
+      message: error,
+    });
+  }
 };
 
 const middleware = (req, res, next) => {
