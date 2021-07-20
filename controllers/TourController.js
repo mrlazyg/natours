@@ -14,7 +14,7 @@ const Tour = require('../models/Tour');
 
 const getAllTours = async (req, res) => {
   try {
-    const allTours = await Tour.find();
+    const allTours = await Tour.find({}, { __v: 0 });
     res.status(STATUS_CODES.OK).send({
       status: 'success',
       data: allTours,
@@ -29,7 +29,7 @@ const getAllTours = async (req, res) => {
 
 const getTour = async (req, res) => {
   try {
-    const tour = await Tour.findById(req.params.id);
+    const tour = await Tour.findById(req.params.id, { __v: 0 });
     res.status(STATUS_CODES.OK).send({
       status: 'success',
       data: tour,
