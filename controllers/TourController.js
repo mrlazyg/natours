@@ -20,7 +20,7 @@ const getAllTours = async (req, res) => {
       data: allTours,
     });
   } catch (error) {
-    res.status(404).send({
+    res.status(STATUS_CODES.NOT_FOUND).send({
       status: 'error',
       message: error,
     });
@@ -35,7 +35,7 @@ const getTour = async (req, res) => {
       data: tour,
     });
   } catch (error) {
-    res.status(404).send({
+    res.status(STATUS_CODES.NOT_FOUND).send({
       status: 'error',
       message: error,
     });
@@ -50,7 +50,7 @@ const createTour = async (req, res) => {
       data: newTour,
     });
   } catch (error) {
-    res.status(400).send({
+    res.status(STATUS_CODES.BAD_REQUEST).send({
       status: 'error',
       message: error,
     });
@@ -65,7 +65,7 @@ const updateTour = async (req, res) => {
       data: updatedTour,
     });
   } catch (error) {
-    res.status(400).send({
+    res.status(STATUS_CODES.BAD_REQUEST).send({
       status: 'error',
       message: error,
     });
@@ -80,7 +80,7 @@ const deleteTour = async (req, res) => {
       data: deletedTour,
     });
   } catch (error) {
-    res.status(400).send({
+    res.status(STATUS_CODES.BAD_REQUEST).send({
       status: 'error',
       message: error,
     });
