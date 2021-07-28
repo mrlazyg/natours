@@ -17,6 +17,7 @@ const getAllTours = async (req, res) => {
     const allTours = await Tour.find({}, { __v: 0 });
     res.status(STATUS_CODES.OK).send({
       status: 'success',
+      total: allTours.length,
       data: allTours,
     });
   } catch (error) {
