@@ -1,20 +1,27 @@
 const { STATUS_CODES } = require('../config/constant');
 const Tour = require('../models/Tour');
 
-/* const checkID = (req, res, next, val) => {
-  if (parseInt(req.params.id) > tours.length) {
-    return res.status(404).send({
-      status: 'error',
-      message: 'Invalid Id',
-    });
-  }
-  next();
-};
- */
-
 const getAllTours = async (req, res) => {
   try {
-    const allTours = await Tour.find({}, { __v: 0 });
+    console.log(req.query);
+    let queryObj = { ...req.query };
+    const excludedFields = ['sort', 'limit', 'page', 'fields'];
+    excludedFields.forEach((el) => delete queryObj[el]);
+
+    let queryStr = JSON.stringify(queryObj);
+    queryStr = queryStr.replace(/\b(lt|lte|gt|gte)\b/g, (match) => `$${match}`);
+    queryObj = JSON.parse(queryStr);
+
+    let dbQuery = Tour.find(queryObj, { __v: 0 });
+    //Sorting
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(',').join(' ');
+      dbQuery = dbQuery.sort(sortBy);
+    } else {
+      dbQuery = dbQuery.sort('-createdAt');
+    }
+
+    const allTours = await dbQuery;
     res.status(STATUS_CODES.OK).send({
       status: 'success',
       total: allTours.length,
@@ -60,7 +67,7 @@ const createTour = async (req, res) => {
 
 const updateTour = async (req, res) => {
   try {
-    const updatedTour = await Tour.findOneAndUpdate(req.params.id, req.body, { new: true });
+    const updatedTour = await Tour.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.status(STATUS_CODES.OK).send({
       status: 'success',
       data: updatedTour,
@@ -75,7 +82,7 @@ const updateTour = async (req, res) => {
 
 const deleteTour = async (req, res) => {
   try {
-    const deletedTour = await Tour.findOneAndDelete(req.params.id);
+    const deletedTour = await Tour.findByIdAndDelete(req.params.id);
     res.status(STATUS_CODES.DELETED).send({
       status: 'success',
       data: deletedTour,
@@ -88,6 +95,17 @@ const deleteTour = async (req, res) => {
   }
 };
 
+/* 
+const checkID = (req, res, next, val) => {
+  if (parseInt(req.params.id) > tours.length) {
+    return res.status(404).send({
+      status: 'error',
+      message: 'Invalid Id',
+    });
+  }
+  next();
+};
+
 const middleware = (req, res, next) => {
   if (!req.body.name || !req.body.price) {
     return res.status(400).send({
@@ -97,5 +115,6 @@ const middleware = (req, res, next) => {
   }
   next();
 };
+ */
 
-module.exports = { getAllTours, getTour, createTour, updateTour, deleteTour, middleware };
+module.exports = { getAllTours, getTour, createTour, updateTour, deleteTour };
