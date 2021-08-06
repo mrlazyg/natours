@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/mrlazyg/natours#readme",
   "dependencies": {
+    "chalk": "^4.1.2",
     "express": "^4.17.1",
     "mongoose": "^5.12.14",
     "morgan": "^1.10.0",

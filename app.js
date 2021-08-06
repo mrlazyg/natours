@@ -16,4 +16,14 @@ app.use(express.static(`${__dirname}/public`));
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
+app.get(['/', '/status', '/api/status'], (req, res) => {
+  res.cookie('access_token', 'token', { maxAge: 30000 });
+  res.status(200).send({
+    name: process.env.APP_NAME || 'natours-api',
+    status: 'success',
+    description: '',
+    uptime: process.uptime(),
+  });
+});
+
 module.exports = app;
