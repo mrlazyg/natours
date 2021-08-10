@@ -1,9 +1,9 @@
 const { STATUS_CODES } = require('../config/constant');
 const Tour = require('../models/Tour');
+const { log, error } = console;
 
 const getAllTours = async (req, res) => {
   try {
-    console.log(req.query);
     let queryObj = { ...req.query };
     const excludedFields = ['sort', 'limit', 'page', 'fields'];
     excludedFields.forEach((el) => delete queryObj[el]);
