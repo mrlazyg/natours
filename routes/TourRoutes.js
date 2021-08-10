@@ -8,7 +8,6 @@ router
   .route('/')
   .get(TourController.getAllTours)
   .post(TourController.createTour);
-// .post(TourController.middleware, TourController.createTour);
 
 router
   .route('/:id')
