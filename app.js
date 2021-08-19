@@ -16,8 +16,12 @@ app.use(express.static(`${__dirname}/public`));
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
-app.get(['/', '/status', '/api/status'], (req, res) => {
-  res.cookie('access_token', 'token', { maxAge: 30000 });
+app.get(['/', '/api', '/status', '/api/status', '/api/v1', '/api/v1/status'], (req, res) => {
+  res.cookie(
+    'access_token',
+    'eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTYyOTM4NjEyOSwiZXhwIjoxNjI5Mzg5NzI5fQ',
+    { maxAge: 30000 }
+  );
   res.status(200).send({
     name: process.env.APP_NAME || 'natours-api',
     status: 'success',
