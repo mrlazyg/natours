@@ -12,16 +12,23 @@ const getAllTours = async (req, res) => {
     queryStr = queryStr.replace(/\b(lt|lte|gt|gte)\b/g, (match) => `$${match}`);
     queryObj = JSON.parse(queryStr);
 
-    let dbQuery = Tour.find(queryObj, { __v: 0 });
-    //Sorting
-    if (req.query.sort) {
+    let dbQuery = Tour.find(queryObj, { __v: 0 }); // returns query object
+    //Sort
+    if (req.query?.sort) {
       const sortBy = req.query.sort.split(',').join(' ');
       dbQuery = dbQuery.sort(sortBy);
     } else {
       dbQuery = dbQuery.sort('-createdAt');
     }
+    //fields limit
+    if (req.query?.fields) {
+      const fields = req.query.fields.split(',').join(' ');
+      dbQuery = dbQuery.select(fields);
+    } else {
+      dbQuery = dbQuery.select('-__v');
+    }
 
-    const allTours = await dbQuery;
+    const allTours = await dbQuery; // return actual results
     res.status(STATUS_CODES.OK).send({
       status: 'success',
       total: allTours.length,
