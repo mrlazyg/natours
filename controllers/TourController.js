@@ -12,7 +12,7 @@ const getAllTours = async (req, res) => {
     queryStr = queryStr.replace(/\b(lt|lte|gt|gte)\b/g, (match) => `$${match}`);
     queryObj = JSON.parse(queryStr);
 
-    let dbQuery = Tour.find(queryObj, { __v: 0 }); // returns query object
+    let dbQuery = Tour.find(queryObj); // returns query object
     //Sort
     if (req.query?.sort) {
       const sortBy = req.query.sort.split(',').join(' ');
