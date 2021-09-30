@@ -13,25 +13,32 @@ const getAllTours = async (req, res) => {
     queryObj = JSON.parse(queryStr);
 
     let dbQuery = Tour.find(queryObj); // returns query object
-    //Sort
+    // 1. Sort
     if (req.query?.sort) {
       const sortBy = req.query.sort.split(',').join(' ');
       dbQuery = dbQuery.sort(sortBy);
     } else {
       dbQuery = dbQuery.sort('-createdAt');
     }
-    //fields limit
+    // 2. fields limit
     if (req.query?.fields) {
       const fields = req.query.fields.split(',').join(' ');
       dbQuery = dbQuery.select(fields);
     } else {
       dbQuery = dbQuery.select('-__v');
     }
+    // 3. Pagination & limit per page
+    const page = req.query?.page * 1 || 1,
+      limit = req.query?.limit * 1 || 20,
+      skip = (page - 1) * limit;
+    dbQuery = dbQuery.skip(skip).limit(limit);
 
     const allTours = await dbQuery; // return actual results
     res.status(STATUS_CODES.OK).send({
       status: 'success',
       total: allTours.length,
+      page,
+      limit,
       data: allTours,
     });
   } catch (error) {
@@ -73,8 +80,9 @@ const createTour = async (req, res) => {
 };
 
 const updateTour = async (req, res) => {
+  const { body, params } = req;
   try {
-    const updatedTour = await Tour.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updatedTour = await Tour.findByIdAndUpdate(params?.id, body, { new: true });
     res.status(STATUS_CODES.OK).send({
       status: 'success',
       data: updatedTour,
