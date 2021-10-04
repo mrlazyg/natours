@@ -2,8 +2,16 @@ const { STATUS_CODES } = require('../config/constant');
 const Tour = require('../models/Tour');
 const { log, error } = console;
 
-const getAllTours = async (req, res) => {
+class TourController {
+  constructor(query, queryString) {
+    this.query = query;
+    this.queryString = queryString;
+  }
+}
+
+exports.getAllTours = async (req, res) => {
   try {
+    // 1. Filtering
     let queryObj = { ...req.query };
     const excludedFields = ['sort', 'limit', 'page', 'fields'];
     excludedFields.forEach((el) => delete queryObj[el]);
@@ -13,25 +21,28 @@ const getAllTours = async (req, res) => {
     queryObj = JSON.parse(queryStr);
 
     let dbQuery = Tour.find(queryObj); // returns query object
-    // 1. Sort
+    // 2. Sort
     if (req.query?.sort) {
       const sortBy = req.query.sort.split(',').join(' ');
       dbQuery = dbQuery.sort(sortBy);
     } else {
       dbQuery = dbQuery.sort('-createdAt');
     }
-    // 2. fields limit
+    // 3. fields limit
     if (req.query?.fields) {
       const fields = req.query.fields.split(',').join(' ');
       dbQuery = dbQuery.select(fields);
     } else {
       dbQuery = dbQuery.select('-__v');
     }
-    // 3. Pagination & limit per page
+    // 4. Pagination & limit per page
     const page = req.query?.page * 1 || 1,
       limit = req.query?.limit * 1 || 20,
       skip = (page - 1) * limit;
     dbQuery = dbQuery.skip(skip).limit(limit);
+
+    const count = await Tour.countDocuments();
+    if (skip >= count) throw new Error({ message: "This page doesn't exist!" });
 
     const allTours = await dbQuery; // return actual results
     res.status(STATUS_CODES.OK).send({
@@ -49,7 +60,7 @@ const getAllTours = async (req, res) => {
   }
 };
 
-const getTour = async (req, res) => {
+exports.getTour = async (req, res) => {
   try {
     const tour = await Tour.findById(req.params.id, { __v: 0 });
     res.status(STATUS_CODES.OK).send({
@@ -64,7 +75,7 @@ const getTour = async (req, res) => {
   }
 };
 
-const createTour = async (req, res) => {
+exports.createTour = async (req, res) => {
   try {
     const newTour = await Tour.create(req.body);
     res.status(STATUS_CODES.CREATED).send({
@@ -79,7 +90,7 @@ const createTour = async (req, res) => {
   }
 };
 
-const updateTour = async (req, res) => {
+exports.updateTour = async (req, res) => {
   const { body, params } = req;
   try {
     const updatedTour = await Tour.findByIdAndUpdate(params?.id, body, { new: true });
@@ -95,7 +106,7 @@ const updateTour = async (req, res) => {
   }
 };
 
-const deleteTour = async (req, res) => {
+exports.deleteTour = async (req, res) => {
   try {
     const deletedTour = await Tour.findByIdAndDelete(req.params.id);
     res.status(STATUS_CODES.DELETED).send({
@@ -131,5 +142,3 @@ const middleware = (req, res, next) => {
   next();
 };
  */
-
-module.exports = { getAllTours, getTour, createTour, updateTour, deleteTour };
