@@ -1,50 +1,50 @@
 const { STATUS_CODES } = require('../config/constant');
 const Tour = require('../models/Tour');
+const TourFeatures = require('../utils/TourFeatures');
 const { log, error } = console;
-
-class TourController {
-  constructor(query, queryString) {
-    this.query = query;
-    this.queryString = queryString;
-  }
-}
 
 exports.getAllTours = async (req, res) => {
   try {
     // 1. Filtering
-    let queryObj = { ...req.query };
+    /* const queryObj = { ...req.query };
     const excludedFields = ['sort', 'limit', 'page', 'fields'];
     excludedFields.forEach((el) => delete queryObj[el]);
 
     let queryStr = JSON.stringify(queryObj);
     queryStr = queryStr.replace(/\b(lt|lte|gt|gte)\b/g, (match) => `$${match}`);
-    queryObj = JSON.parse(queryStr);
 
-    let dbQuery = Tour.find(queryObj); // returns query object
+    let query = Tour.find(JSON.parse(queryStr)); // returns query object
+     */
     // 2. Sort
-    if (req.query?.sort) {
+    /* if (req.query?.sort) {
       const sortBy = req.query.sort.split(',').join(' ');
-      dbQuery = dbQuery.sort(sortBy);
+      query = query.sort(sortBy);
     } else {
-      dbQuery = dbQuery.sort('-createdAt');
-    }
+      query = query.sort('-createdAt');
+    } */
     // 3. fields limit
-    if (req.query?.fields) {
+    /* if (req.query?.fields) {
       const fields = req.query.fields.split(',').join(' ');
-      dbQuery = dbQuery.select(fields);
+      query = query.select(fields);
     } else {
-      dbQuery = dbQuery.select('-__v');
-    }
+      query = query.select('-__v');
+    } */
     // 4. Pagination & limit per page
-    const page = req.query?.page * 1 || 1,
+    /* const page = req.query?.page * 1 || 1,
       limit = req.query?.limit * 1 || 20,
       skip = (page - 1) * limit;
-    dbQuery = dbQuery.skip(skip).limit(limit);
+    query = query.skip(skip).limit(limit);
 
     const count = await Tour.countDocuments();
     if (skip >= count) throw new Error({ message: "This page doesn't exist!" });
-
-    const allTours = await dbQuery; // return actual results
+ */
+    const features = new TourFeatures(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+    const { page, limit } = features.queryString;
+    const allTours = await features.query; // return actual results
     res.status(STATUS_CODES.OK).send({
       status: 'success',
       total: allTours.length,
@@ -52,10 +52,11 @@ exports.getAllTours = async (req, res) => {
       limit,
       data: allTours,
     });
-  } catch (error) {
+  } catch (err) {
+    error(err);
     res.status(STATUS_CODES.NOT_FOUND).send({
       status: 'error',
-      message: error,
+      message: err,
     });
   }
 };
@@ -67,10 +68,10 @@ exports.getTour = async (req, res) => {
       status: 'success',
       data: tour,
     });
-  } catch (error) {
+  } catch (err) {
     res.status(STATUS_CODES.NOT_FOUND).send({
       status: 'error',
-      message: error,
+      message: err,
     });
   }
 };
@@ -82,10 +83,10 @@ exports.createTour = async (req, res) => {
       status: 'success',
       data: newTour,
     });
-  } catch (error) {
+  } catch (err) {
     res.status(STATUS_CODES.BAD_REQUEST).send({
       status: 'error',
-      message: error,
+      message: err,
     });
   }
 };
@@ -98,10 +99,10 @@ exports.updateTour = async (req, res) => {
       status: 'success',
       data: updatedTour,
     });
-  } catch (error) {
+  } catch (err) {
     res.status(STATUS_CODES.BAD_REQUEST).send({
       status: 'error',
-      message: error,
+      message: err,
     });
   }
 };
@@ -113,10 +114,10 @@ exports.deleteTour = async (req, res) => {
       status: 'success',
       data: deletedTour,
     });
-  } catch (error) {
+  } catch (err) {
     res.status(STATUS_CODES.BAD_REQUEST).send({
       status: 'error',
-      message: error,
+      message: err,
     });
   }
 };
