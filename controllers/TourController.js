@@ -86,7 +86,8 @@ exports.getTour = async (req, res) => {
 exports.createTour = async (req, res) => {
   log(yellow('Create and save a new tour...'));
   try {
-    const oldTour = await Tour.findOne({ name: req.body.name });
+    const tourName = typeof req.body?.name === 'string' ? req.body?.name : String(req.body?.name);
+    const oldTour = await Tour.findOne({ name: tourName });
     if (oldTour?.name) {
       return res.status(STATUS_CODES.BAD_REQUEST).send({
         status: 'error',
