@@ -109,9 +109,15 @@ exports.createTour = async (req, res) => {
 
 exports.updateTour = async (req, res) => {
   log(yellow('Update a tour...'));
-  const { body, params } = req;
   try {
-    const updatedTour = await Tour.findByIdAndUpdate(params?.id, body, { new: true });
+    const { body: dataToUpdate, params } = req;
+    if (!dataToUpdate instanceof Object) {
+      return res.status(STATUS_CODES.BAD_REQUEST).send({
+        status: 'error',
+        message: err,
+      });
+    }
+    const updatedTour = await Tour.findByIdAndUpdate(params?.id, dataToUpdate, { new: true });
     res.status(STATUS_CODES.OK).send({
       status: 'success',
       data: updatedTour,
