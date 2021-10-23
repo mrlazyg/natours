@@ -3,8 +3,7 @@
 ## https://docs.npmjs.com/misc/faq#should-i-check-my-node_modules-folder-into-git
 
 .DS_Store
-
 node_modules
 .vscode
-db_query
+Query
 swagger

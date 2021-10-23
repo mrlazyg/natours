@@ -86,6 +86,13 @@ exports.getTour = async (req, res) => {
 exports.createTour = async (req, res) => {
   log(yellow('Create and save a new tour...'));
   try {
+    const oldTour = await Tour.findOne({ name: req.body.name });
+    if (oldTour?.name) {
+      return res.status(STATUS_CODES.BAD_REQUEST).send({
+        status: 'error',
+        message: `The tour name '${oldTour?.name}' already exists`,
+      });
+    }
     const newTour = await Tour.create(req.body);
     res.status(STATUS_CODES.CREATED).send({
       status: 'success',
