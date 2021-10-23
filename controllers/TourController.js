@@ -178,8 +178,12 @@ exports.getMonthlyPlan = async (req, res) => {
         $group: {
           _id: { $month: '$startDates' },
           numOfTours: { $sum: 1 },
+          tours: { $push: '$name' },
         },
       },
+      { $addFields: { month: '$_id' } },
+      { $project: { _id: 0 } },
+      { $sort: { numOfTours: -1 } },
     ];
     const plans = await Tour.aggregate(stages);
     res.status(STATUS_CODES.OK).send({

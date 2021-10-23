@@ -50,8 +50,13 @@ const tourSchema = new mongoose.Schema(
     images: [String],
     startDates: [Date],
   },
-  { collection: 'tours', timestamps: true }
+  { collection: 'tours', timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+
+// virtual properties aren't saved in db but returns in response and to get it, need to pass 'virtual' properties in schema options
+tourSchema.virtual('durationWeeks').get(function() {
+  return this.duration / 7;
+});
 
 const Tour = mongoose.model('Tour', tourSchema);
 
