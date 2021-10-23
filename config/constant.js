@@ -10,9 +10,11 @@ globalConstant.STATUS_CODES = {
   NOT_FOUND: 404,
   PRECONDITION: 412,
   INTERNAL_SERVER_ERROR: 500,
+  BAD_GATEWAY: 502,
+  SERVICE_UNAVAILABLE: 503,
 };
 
-globalConstant.DB_URI = process.env.DB_URI || 'mongodb://localhost:27017/';
+globalConstant.DB_URI = process.env.DB_URI || 'mongodb://localhost:27017/'; // TODO: always remove the server url
 globalConstant.DB_OPTIONS = {
   useCreateIndex: true,
   useFindAndModify: false,
@@ -20,7 +22,5 @@ globalConstant.DB_OPTIONS = {
   useUnifiedTopology: true,
   dbName: process.env.DB_NAME || 'NATOURS',
 };
-
-// TODO: always remove the server url
 
 module.exports = globalConstant;
