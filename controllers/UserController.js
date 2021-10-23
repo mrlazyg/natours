@@ -1,4 +1,5 @@
 const users = require('../dev-data/data/users.json');
+// const tokenHandler = require('../utils/TokenHandler');
 
 const getAllUsers = (req, res) => {
   res.send({
