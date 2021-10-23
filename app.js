@@ -1,3 +1,7 @@
+/**
+ * File name:  app.js
+ * @author:    (c) Noor Salim
+ */
 const express = require('express');
 const morgan = require('morgan');
 const swagger = require('swagger-ui-express');

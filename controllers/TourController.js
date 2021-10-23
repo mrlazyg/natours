@@ -1,43 +1,49 @@
+/**
+ * File name:  TourRoutes.js
+ * @author:    (c) Noor Salim
+ */
+const { redBright, yellow } = require('chalk');
 const { STATUS_CODES } = require('../config/constant');
 const Tour = require('../models/Tour');
 const TourFeatures = require('../utils/TourFeatures');
-const { log, error } = console;
+const { log, debug, error } = console;
 
 exports.getAllTours = async (req, res) => {
+  log(yellow('Get all tour...'));
   try {
-    // 1. Filtering
-    /* const queryObj = { ...req.query };
-    const excludedFields = ['sort', 'limit', 'page', 'fields'];
-    excludedFields.forEach((el) => delete queryObj[el]);
+    // // 1. Filtering
+    // const queryObj = { ...req.query };
+    // const excludedFields = ['sort', 'limit', 'page', 'fields'];
+    // excludedFields.forEach((el) => delete queryObj[el]);
 
-    let queryStr = JSON.stringify(queryObj);
-    queryStr = queryStr.replace(/\b(lt|lte|gt|gte)\b/g, (match) => `$${match}`);
+    // let queryStr = JSON.stringify(queryObj);
+    // queryStr = queryStr.replace(/\b(lt|lte|gt|gte)\b/g, (match) => `$${match}`);
 
-    let query = Tour.find(JSON.parse(queryStr)); // returns query object
-     */
-    // 2. Sort
-    /* if (req.query?.sort) {
-      const sortBy = req.query.sort.split(',').join(' ');
-      query = query.sort(sortBy);
-    } else {
-      query = query.sort('-createdAt');
-    } */
-    // 3. fields limit
-    /* if (req.query?.fields) {
-      const fields = req.query.fields.split(',').join(' ');
-      query = query.select(fields);
-    } else {
-      query = query.select('-__v');
-    } */
-    // 4. Pagination & limit per page
-    /* const page = req.query?.page * 1 || 1,
-      limit = req.query?.limit * 1 || 20,
-      skip = (page - 1) * limit;
-    query = query.skip(skip).limit(limit);
+    // let query = Tour.find(JSON.parse(queryStr)); // returns query object
 
-    const count = await Tour.countDocuments();
-    if (skip >= count) throw new Error({ message: "This page doesn't exist!" });
- */
+    // // 2. Sort
+    // if (req.query?.sort) {
+    //   const sortBy = req.query.sort.split(',').join(' ');
+    //   query = query.sort(sortBy);
+    // } else {
+    //   query = query.sort('-createdAt');
+    // }
+    // // 3. fields limit
+    // if (req.query?.fields) {
+    //   const fields = req.query.fields.split(',').join(' ');
+    //   query = query.select(fields);
+    // } else {
+    //   query = query.select('-__v');
+    // }
+    // // 4. Pagination & limit per page
+    // const page = req.query?.page * 1 || 1,
+    //   limit = req.query?.limit * 1 || 20,
+    //   skip = (page - 1) * limit;
+    // query = query.skip(skip).limit(limit);
+
+    // const count = await Tour.countDocuments();
+    // if (skip >= count) throw new Error({ message: "This page doesn't exist!" });
+
     const features = new TourFeatures(Tour.find(), req.query)
       .filter()
       .sort()
@@ -62,6 +68,7 @@ exports.getAllTours = async (req, res) => {
 };
 
 exports.getTour = async (req, res) => {
+  log(yellow('Get a tour...'));
   try {
     const tour = await Tour.findById(req.params.id, { __v: 0 });
     res.status(STATUS_CODES.OK).send({
@@ -77,6 +84,7 @@ exports.getTour = async (req, res) => {
 };
 
 exports.createTour = async (req, res) => {
+  log(yellow('Create and save a new tour...'));
   try {
     const newTour = await Tour.create(req.body);
     res.status(STATUS_CODES.CREATED).send({
@@ -92,6 +100,7 @@ exports.createTour = async (req, res) => {
 };
 
 exports.updateTour = async (req, res) => {
+  log(yellow('Update a tour...'));
   const { body, params } = req;
   try {
     const updatedTour = await Tour.findByIdAndUpdate(params?.id, body, { new: true });
@@ -108,6 +117,7 @@ exports.updateTour = async (req, res) => {
 };
 
 exports.deleteTour = async (req, res) => {
+  log(yellow('Delete a tour...'));
   try {
     const deletedTour = await Tour.findByIdAndDelete(req.params.id);
     res.status(STATUS_CODES.DELETED).send({
@@ -122,24 +132,66 @@ exports.deleteTour = async (req, res) => {
   }
 };
 
-/* 
-const checkID = (req, res, next, val) => {
-  if (parseInt(req.params.id) > tours.length) {
-    return res.status(404).send({
+exports.getTourStats = async (req, res) => {
+  log(yellow('Tour Statistics...'));
+  try {
+    const stages = [
+      { $match: { ratingsAverage: { $gte: 4.5 } } },
+      {
+        $group: {
+          _id: { $toUpper: '$difficulty' },
+          numOfTours: { $sum: 1 },
+          numOfRatings: { $sum: '$ratingsQuantity' },
+          averageRating: { $avg: '$ratingsAverage' },
+          averagePrice: { $avg: '$price' },
+          maxPrice: { $max: '$price' },
+          minPrice: { $min: '$price' },
+        },
+      },
+    ];
+    const stats = await Tour.aggregate(stages);
+    res.status(STATUS_CODES.OK).send({
+      status: 'success',
+      data: stats,
+    });
+  } catch (err) {
+    error(redBright(err.message));
+    res.status(STATUS_CODES.NOT_FOUND).send({
       status: 'error',
-      message: 'Invalid Id',
+      message: err,
     });
   }
-  next();
 };
 
-const middleware = (req, res, next) => {
-  if (!req.body.name || !req.body.price) {
-    return res.status(400).send({
+exports.getMonthlyPlan = async (req, res) => {
+  log(yellow(`Get monthly plans for year ${req.params.year}...`));
+  try {
+    const year = +req.params.year;
+    const stages = [
+      { $unwind: '$startDates' },
+      {
+        $match: {
+          startDates: { $gte: new Date(`${year}-01-01`), $lte: new Date(`${year}-12-31`) },
+        },
+      },
+      {
+        $group: {
+          _id: { $month: '$startDates' },
+          numOfTours: { $sum: 1 },
+        },
+      },
+    ];
+    const plans = await Tour.aggregate(stages);
+    res.status(STATUS_CODES.OK).send({
+      status: 'success',
+      total: plans.length,
+      data: plans,
+    });
+  } catch (err) {
+    error(redBright(err.message));
+    res.status(STATUS_CODES.NOT_FOUND).send({
       status: 'error',
-      message: 'name or price is missing',
+      message: err,
     });
   }
-  next();
 };
- */
