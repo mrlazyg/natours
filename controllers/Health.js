@@ -9,7 +9,9 @@ exports.health = (req, res) => {
       app_name: process.env.npm_package_name || 'natours-api',
       app_version: process.env.npm_package_version,
       description: 'Application is up and running',
-      uptime: process.uptime().toFixed(2) + ' seconds',
+      uptime: process.uptime(),
+      platform: process.platform,
+      memory_usage: process.memoryUsage(),
     });
   } catch (err) {
     console.error(err);
