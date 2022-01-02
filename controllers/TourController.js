@@ -6,7 +6,6 @@ const { redBright, yellow } = require('chalk');
 const { STATUS_CODES } = require('../config/constant');
 const Tour = require('../models/Tour');
 const TourFeatures = require('../utils/TourFeatures');
-const { log, debug, error } = console;
 
 exports.getAllTours = async (req, res) => {
   log(yellow('Get all tour...'));
@@ -59,7 +58,7 @@ exports.getAllTours = async (req, res) => {
       data: allTours,
     });
   } catch (err) {
-    error(err);
+    console.error(err);
     res.status(STATUS_CODES.NOT_FOUND).send({
       status: 'error',
       message: err,
@@ -68,7 +67,7 @@ exports.getAllTours = async (req, res) => {
 };
 
 exports.getTour = async (req, res) => {
-  log(yellow('Get a tour...'));
+  console.log(yellow('Get a tour...'));
   try {
     const tour = await Tour.findById(req.params.id, { __v: 0 });
     res.status(STATUS_CODES.OK).send({
@@ -84,7 +83,7 @@ exports.getTour = async (req, res) => {
 };
 
 exports.createTour = async (req, res) => {
-  log(yellow('Create and save a new tour...'));
+  console.log(yellow('Create and save a new tour...'));
   try {
     const tourName = typeof req.body?.name === 'string' ? req.body?.name : String(req.body?.name);
     const oldTour = await Tour.findOne({ name: tourName });
@@ -108,7 +107,7 @@ exports.createTour = async (req, res) => {
 };
 
 exports.updateTour = async (req, res) => {
-  log(yellow('Update a tour...'));
+  console.log(yellow('Update a tour...'));
   try {
     const { body: dataToUpdate, params } = req;
     const updatedTour = await Tour.findByIdAndUpdate(params?.id, dataToUpdate, { new: true });
@@ -125,7 +124,7 @@ exports.updateTour = async (req, res) => {
 };
 
 exports.deleteTour = async (req, res) => {
-  log(yellow('Delete a tour...'));
+  console.log(yellow('Delete a tour...'));
   try {
     const deletedTour = await Tour.findByIdAndDelete(req.params.id);
     res.status(STATUS_CODES.DELETED).send({
@@ -141,7 +140,7 @@ exports.deleteTour = async (req, res) => {
 };
 
 exports.getTourStats = async (req, res) => {
-  log(yellow('Tour Statistics...'));
+  console.log(yellow('Tour Statistics...'));
   try {
     const stages = [
       { $match: { ratingsAverage: { $gte: 4.5 } } },
@@ -172,7 +171,7 @@ exports.getTourStats = async (req, res) => {
 };
 
 exports.getMonthlyPlan = async (req, res) => {
-  log(yellow(`Get monthly plans for year ${req.params.year}...`));
+  console.log(yellow(`Get monthly plans for year ${req.params.year}...`));
   try {
     const year = +req.params.year;
     const stages = [
@@ -200,7 +199,7 @@ exports.getMonthlyPlan = async (req, res) => {
       data: plans,
     });
   } catch (err) {
-    error(redBright(err.message));
+    console.error(redBright(err.message));
     res.status(STATUS_CODES.NOT_FOUND).send({
       status: 'error',
       message: err,
