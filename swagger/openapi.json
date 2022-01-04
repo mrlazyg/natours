@@ -19,7 +19,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:{port}/{basePath}/{apiVersion}",
+      "url": "http://localhost:{port}/api/{version}",
       "description": "DEV SERVER",
       "variables": {
         "port": {
@@ -27,10 +27,7 @@
           "enum": ["3000", "443"],
           "default": "3000"
         },
-        "basePath": {
-          "default": "api"
-        },
-        "apiVersion": {
+        "version": {
           "description": "API Version",
           "enum": ["v1", "v2"],
           "default": "v1"
