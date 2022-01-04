@@ -27,8 +27,8 @@ app.use(express.static(`${__dirname}/public`));
 
 // app.use('/api/v1/docs', swagger.serve, swagger.setup(swaggerDoc, swaggerOptions)); // serve single swagger document
 // serve multiple swagger documents
-app.use('/api/v1/docs', swagger.serveFiles(swaggerDoc, swaggerOptions), swagger.setup(swaggerDoc));
-app.use('/api/v2/docs', swagger.serveFiles(openAPIDoc, swaggerOptions), swagger.setup(swaggerDoc));
+app.use('/api/v1/docs', swagger.serveFiles(swaggerDoc), swagger.setup(swaggerDoc, swaggerOptions));
+app.use('/api/v2/docs', swagger.serveFiles(openAPIDoc), swagger.setup(swaggerDoc, swaggerOptions));
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
