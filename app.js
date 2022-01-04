@@ -10,8 +10,9 @@ const { health } = require('./controllers/Health');
 const tourRouter = require('./routes/TourRoutes');
 const userRouter = require('./routes/UserRoutes');
 const swaggerDoc = require('./swagger/swagger.json');
+const openAPIDoc = require('./swagger/openapi.json');
 
-const SwaggerOptions = {
+const swaggerOptions = {
   customSiteTitle: 'API Docs',
   // customfavIcon: '/assets/favicon.ico',
   customCss: '.swagger-ui .topbar { display: none }',
@@ -24,7 +25,11 @@ app.use(express.json());
 app.use(morgan('dev'));
 app.use(express.static(`${__dirname}/public`));
 
-app.use('/api/v1/docs', swagger.serve, swagger.setup(swaggerDoc, SwaggerOptions));
+// app.use('/api/v1/docs', swagger.serve, swagger.setup(swaggerDoc, swaggerOptions)); // serve single swagger document
+// serve multiple swagger documents
+app.use('/api/v1/docs', swagger.serveFiles(swaggerDoc, swaggerOptions), swagger.setup(swaggerDoc));
+app.use('/api/v2/docs', swagger.serveFiles(openAPIDoc, swaggerOptions), swagger.setup(swaggerDoc));
+
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
