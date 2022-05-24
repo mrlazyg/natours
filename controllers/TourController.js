@@ -8,7 +8,7 @@ const Tour = require('../models/Tour');
 const TourFeatures = require('../utils/TourFeatures');
 
 exports.getAllTours = async (req, res) => {
-  log(yellow('Get all tour...'));
+  console.log(yellow('Get all tour...'));
   try {
     // // 1. Filtering
     // const queryObj = { ...req.query };
@@ -110,7 +110,7 @@ exports.updateTour = async (req, res) => {
   console.log(yellow('Update a tour...'));
   try {
     const { body: dataToUpdate, params } = req;
-    const updatedTour = await Tour.findByIdAndUpdate(params?.id, dataToUpdate, { new: true });
+    const updatedTour = await Tour.findByIdAndUpdate(params?.id, dataToUpdate, { new: true, runValidators: true });
     res.status(STATUS_CODES.OK).send({
       status: 'success',
       data: updatedTour,
@@ -171,7 +171,7 @@ exports.getTourStats = async (req, res) => {
 };
 
 exports.getMonthlyPlan = async (req, res) => {
-  console.log(yellow(`Get monthly plans for year ${req.params.year}...`));
+  console.log(yellow(`Get monthly plans for year ${req?.params?.year}...`));
   try {
     const year = +req.params.year;
     const stages = [
