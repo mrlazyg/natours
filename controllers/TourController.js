@@ -4,10 +4,12 @@
  */
 const { redBright, yellow } = require('chalk');
 const { STATUS_CODES } = require('../config/constant');
+const ErrorHandler = require('../utils/ErrorHandler');
 const Tour = require('../models/Tour');
 const TourFeatures = require('../utils/TourFeatures');
+const catchAsync = require('../utils/catchAsync');
 
-exports.getAllTours = async (req, res) => {
+exports.getAllTours = async (req, res, next) => {
   console.log(yellow('Get all tour...'));
   try {
     // // 1. Filtering
@@ -58,86 +60,55 @@ exports.getAllTours = async (req, res) => {
       data: allTours,
     });
   } catch (err) {
-    console.error(err);
-    res.status(STATUS_CODES.NOT_FOUND).send({
-      status: 'error',
-      message: err,
-    });
+    console.log(err);
+    next(new ErrorHandler(err.message, STATUS_CODES.NOT_FOUND));
   }
 };
 
-exports.getTour = async (req, res) => {
+exports.getTour = catchAsync(async (req, res, next) => {
   console.log(yellow('Get a tour...'));
-  try {
-    const tour = await Tour.findById(req.params.id, { __v: 0 });
-    res.status(STATUS_CODES.OK).send({
-      status: 'success',
-      data: tour,
-    });
-  } catch (err) {
-    res.status(STATUS_CODES.NOT_FOUND).send({
-      status: 'error',
-      message: err,
-    });
-  }
-};
+  const tour = await Tour.findById(req.params.id, { __v: 0 });
+  res.status(STATUS_CODES.OK).send({
+    status: 'success',
+    data: tour,
+  });
+});
 
-exports.createTour = async (req, res) => {
+exports.createTour = catchAsync(async (req, res, next) => {
   console.log(yellow('Create and save a new tour...'));
-  try {
-    const tourName = typeof req.body?.name === 'string' ? req.body?.name : String(req.body?.name);
-    const oldTour = await Tour.findOne({ name: tourName });
-    if (oldTour?.name) {
-      return res.status(STATUS_CODES.BAD_REQUEST).send({
-        status: 'error',
-        message: `The tour name '${oldTour?.name}' already exists`,
-      });
-    }
-    const newTour = await Tour.create(req.body);
-    res.status(STATUS_CODES.CREATED).send({
-      status: 'success',
-      data: newTour,
-    });
-  } catch (err) {
-    res.status(STATUS_CODES.BAD_REQUEST).send({
+  const tourName = typeof req.body?.name === 'string' ? req.body?.name : String(req.body?.name);
+  const oldTour = await Tour.findOne({ name: tourName });
+  if (oldTour?.name) {
+    return res.status(STATUS_CODES.BAD_REQUEST).send({
       status: 'error',
-      message: err,
+      message: `The tour name '${oldTour?.name}' already exists`,
     });
   }
-};
+  const newTour = await Tour.create(req.body);
+  res.status(STATUS_CODES.CREATED).send({
+    status: 'success',
+    data: newTour,
+  });
+});
 
-exports.updateTour = async (req, res) => {
+exports.updateTour = catchAsync(async (req, res, next) => {
   console.log(yellow('Update a tour...'));
-  try {
-    const { body: dataToUpdate, params } = req;
-    const updatedTour = await Tour.findByIdAndUpdate(params?.id, dataToUpdate, { new: true, runValidators: true });
-    res.status(STATUS_CODES.OK).send({
-      status: 'success',
-      data: updatedTour,
-    });
-  } catch (err) {
-    res.status(STATUS_CODES.BAD_REQUEST).send({
-      status: 'error',
-      message: err,
-    });
-  }
-};
+  const { body: dataToUpdate, params } = req;
+  const updatedTour = await Tour.findByIdAndUpdate(params?.id, dataToUpdate, { new: true, runValidators: true });
+  res.status(STATUS_CODES.OK).send({
+    status: 'success',
+    data: updatedTour,
+  });
+});
 
-exports.deleteTour = async (req, res) => {
+exports.deleteTour = catchAsync(async (req, res, next) => {
   console.log(yellow('Delete a tour...'));
-  try {
-    const deletedTour = await Tour.findByIdAndDelete(req.params.id);
-    res.status(STATUS_CODES.DELETED).send({
-      status: 'success',
-      data: deletedTour,
-    });
-  } catch (err) {
-    res.status(STATUS_CODES.BAD_REQUEST).send({
-      status: 'error',
-      message: err,
-    });
-  }
-};
+  const deletedTour = await Tour.findByIdAndDelete(req.params.id);
+  res.status(STATUS_CODES.DELETED).send({
+    status: 'success',
+    data: deletedTour,
+  });
+});
 
 exports.getTourStats = async (req, res) => {
   console.log(yellow('Tour Statistics...'));
@@ -162,11 +133,8 @@ exports.getTourStats = async (req, res) => {
       data: stats,
     });
   } catch (err) {
-    error(redBright(err.message));
-    res.status(STATUS_CODES.NOT_FOUND).send({
-      status: 'error',
-      message: err,
-    });
+    console.log(redBright(err.message));
+    next(new ErrorHandler(err.message, STATUS_CODES.NOT_FOUND));
   }
 };
 
@@ -199,10 +167,7 @@ exports.getMonthlyPlan = async (req, res) => {
       data: plans,
     });
   } catch (err) {
-    console.error(redBright(err.message));
-    res.status(STATUS_CODES.NOT_FOUND).send({
-      status: 'error',
-      message: err,
-    });
+    console.log(redBright(err.message));
+    next(new ErrorHandler(err.message, STATUS_CODES.NOT_FOUND));
   }
 };
