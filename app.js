@@ -10,7 +10,7 @@ const { health } = require('./controllers/Health');
 const tourRouter = require('./routes/TourRoutes');
 const userRouter = require('./routes/UserRoutes');
 const swaggerDoc = require('./swagger/swagger.json');
-const openAPIDoc = require('./swagger/openapi.json');
+const openAPIDoc = require('./swagger/openapi_1.json');
 
 const swaggerOptions = {
   customSiteTitle: 'API Docs',
