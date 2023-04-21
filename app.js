@@ -33,6 +33,7 @@ app.use('/api/v2/docs', swagger.serveFiles(openAPIDoc), swagger.setup(swaggerDoc
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
-app.get(['/', '/api', '/status', '/api/status', '/api/v1', '/api/v1/status'], health);
+app.get(['/', '/api/health'], health);
+app.get(['/api', '/status', '/api/status', '/api/v1', '/api/v1/status'], (req, res) => res.redirect(307, '/'));
 
 module.exports = app;
