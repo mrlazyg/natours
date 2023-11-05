@@ -75,7 +75,12 @@ const tourSchema = new mongoose.Schema(
     images: [String],
     startDates: [Date],
   },
-  { collection: 'tours', timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
+  {
+    collection: 'tours',
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
 );
 
 // virtual properties aren't saved in db but returns in response and to get it, need to pass 'virtual' properties in schema options
@@ -103,7 +108,7 @@ tourSchema.post(/^find/, function(doc, next) {
   next();
 });
 
-// aggegation middleware
+// aggregation middleware
 // tourSchema.pre('aggregate', function(next) {
 //   console.log(this.pipeline()); // 'this' refers to current aggregation object
 //   next();
