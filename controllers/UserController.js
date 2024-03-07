@@ -9,8 +9,17 @@ const getAllUsers = (req, res) => {
 };
 
 const getUser = (req, res) => {
+  const { userId } = req.params;
+  const user = users.find((id) => userId === id.email || userId === id._id);
+  if (!user) {
+    return res.status(404).send({
+      status: 'error',
+      message: 'user not found',
+    });
+  }
   res.send({
     status: 'success',
+    user: user || 'User not found',
   });
 };
 
