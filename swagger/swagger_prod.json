@@ -9,7 +9,7 @@
       "url": "https://opensource.org/licenses/MIT"
     }
   },
-  "host": ["https://visit-natours.onrender.com"],
+  "host": ["visit-natours.onrender.com"],
   "basePath": "/api/v1",
   "tags": [
     {
