@@ -9,7 +9,7 @@
       "url": "https://opensource.org/licenses/MIT"
     }
   },
-  "host": ["localhost:3000"],
+  "host": ["localhost:3000", "https://visit-natours.onrender.com"],
   "basePath": "/api/v1",
   "tags": [
     {
@@ -140,7 +140,15 @@
       "$ref": "#/definitions/User"
     },
     "Tours": {
-      "required": ["name", "duration", "price", "maxGroupSize", "difficulty", "summary", "imageCover"],
+      "required": [
+        "name",
+        "duration",
+        "price",
+        "maxGroupSize",
+        "difficulty",
+        "summary",
+        "imageCover"
+      ],
       "type": "object",
       "properties": {
         "name": {
