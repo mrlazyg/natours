@@ -10,7 +10,8 @@ const ErrorHandler = require('./utils/ErrorHandler');
 const { health } = require('./controllers/Health');
 const tourRouter = require('./routes/TourRoutes');
 const userRouter = require('./routes/UserRoutes');
-const swaggerDoc = require('./swagger/swagger.json');
+const swaggerLoc = require('./swagger/swagger_local.json');
+const swaggerProd = require('./swagger/swagger_prod.json');
 const openAPIDoc = require('./swagger/openapi_1.json');
 
 const swaggerOptions = {
@@ -26,7 +27,13 @@ app.use(express.json());
 app.use(morgan('dev'));
 app.use(express.static(`${__dirname}/public`));
 
-app.use('/api/v1/docs', swagger.serve, swagger.setup(swaggerDoc, swaggerOptions)); // serve single swagger document
+if (process.env.NODE_ENV === 'production') {
+  console.log(`App is running on ${process.env.NODE_ENV} server!`);
+  app.use('/api/v1/docs', swagger.serve, swagger.setup(swaggerProd, swaggerOptions)); // serve single swagger document
+} else {
+  console.log(`App is running on ${process.env.NODE_ENV || 'local'} server!`);
+  app.use('/api/v1/docs', swagger.serve, swagger.setup(swaggerLoc, swaggerOptions)); // serve single swagger document
+}
 // serve multiple swagger documents
 // app.use('/api/v1/docs', swagger.serveFiles(swaggerDoc), swagger.setup(swaggerDoc, swaggerOptions));
 // app.use('/api/v2/docs', swagger.serveFiles(openAPIDoc), swagger.setup(swaggerDoc, swaggerOptions));
@@ -35,7 +42,9 @@ app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
 app.get(['/', '/api/health'], health);
-app.get(['/api', '/status', '/api/status', '/api/v1', '/api/v1/status'], (req, res) => res.redirect(307, '/'));
+app.get(['/api', '/status', '/api/status', '/api/v1', '/api/v1/status'], (req, res) =>
+  res.redirect(307, '/')
+);
 
 app.all('*', (req, res, next) => {
   next(new ErrorHandler(`Can't find ${req.originalUrl} on this server!`, 404));
